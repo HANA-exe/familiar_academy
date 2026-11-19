@@ -793,7 +793,7 @@
         
         // 取得敘事開場劇情提示詞 (根據判定1~4替換對應內容)
         generateIntroPrompt(isHuman, role, hasContract, tone, bondChar) {
-            const userStr = "{{user}}";
+            const userStr = "<user>"; // 對於 ST，可以用固定字串，或是帶入實際玩家名稱變量
             let prompt = `為「${userStr}」生成一段敘事開場劇情。變數已預置樓層（stat_data），請根據其中主角各項設定與既有關係起筆，無需複述變數值。\n\n`;
             
             // 判定1：主角種族
@@ -1096,8 +1096,7 @@
                     
                     let msg = "內容生成完畢，已更新至變量！";
                     if (msgParts.length > 0) {
-                        msg += "
-" + msgParts.join(" | ");
+                        msg += "\n" + msgParts.join(" | ");
                     }
                     toastr.success(msg);
                 }
@@ -1121,155 +1120,147 @@
             console.error("MVU API 不存在，請確認這是在 SillyTavern 且已安裝 MVU 擴展。");
             return;
           }
-          
-          const injBtn = document.getElementById('fa-inject-btn');
-          injBtn.disabled = true;
-          injBtn.innerText = "注入中...";
+
+          const mvuContext = { type: "message", message_id: 0 }; 
+          const currentData = Mvu.getMvuData(mvuContext);
+          let statData = _.get(currentData, "stat_data");
+
+          if (!statData || !statData["主角"] || !statData["主角欄"]) {
+              statData = this.createFullBaseData();
+          }
+
+          const roleStr = this.getRoleStr();
+          const gradeStr = this.getGrade();
+          const toneStr = document.getElementById("fa-story-tone").value;
+          statData["基調"] = toneStr;
+
+          if (this.isHuman) {
+            statData["$主角是否是使魔"] = false;
+            statData["主角"]["名字"] = document.getElementById("fa-h-name").value || "尚未初始化";
+            statData["主角"]["性別"] = this.getGenderStr('fa-h-gender', 'fa-h-gender-other');
+            statData["主角"]["身分"] = roleStr;
+            statData["主角"]["年級"] = gradeStr;
+            statData["主角"]["設定"] = document.getElementById("fa-h-persona").value || "尚未初始化";
+            
+            statData["主角"]["當前狀態"] = statData["主角"]["當前狀態"] || { 所在位置: "尚未初始化", 特殊狀態: {} };
+            statData["主角"]["當前狀態"]["所在位置"] = document.getElementById("fa-h-status").value || "尚未初始化";
+            statData["主角"]["持有藝齒"] = parseInt(document.getElementById("fa-h-money").value) || 0;
+            if (typeof statData["主角"]["持有物品"] !== 'object' || statData["主角"]["持有物品"] === null) {
+                statData["主角"]["持有物品"] = {};
+            }
+
+            const hasContract = document.getElementById("fa-h-contract").value === "有";
+            statData["主角"]["是否有契約使魔"] = hasContract;
+
+            if (hasContract) {
+              const cTitle = document.getElementById("fa-ch-title").value.trim();
+              const cName = document.getElementById("fa-ch-name").value.trim();
+              const cFullName = (cTitle || cName) ? `${cTitle || "無稱號"}-${cName || "未命名"}` : "尚未初始化";
+              const cElement = this.normalizeElement(document.getElementById("fa-ch-element").value);
+              const cRace = this.normalizeRace(document.getElementById("fa-ch-race-type").value);
+              const cStar = document.getElementById("fa-ch-star").value.trim() || "1星";
+              const cClass = `${cElement}-${cRace}-${cStar}`;
+
+              if (!statData['主角']['契約使魔'] || typeof statData['主角']['契約使魔'] === 'string') {
+                   statData['主角']['契約使魔'] = this.getEmptyFamiliarBase();
+              }
+
+              statData["主角"]["契約使魔"]["名字"] = cFullName;
+              statData["主角"]["契約使魔"]["分類"] = cClass;
+              statData["主角"]["契約使魔"]["性別"] = this.getGenderStr('fa-ch-gender', 'fa-ch-gender-other');
+              statData["主角"]["契約使魔"]["設定"] = document.getElementById("fa-ch-persona").value || "尚未初始化"; 
+              statData["主角"]["契約使魔"]["當前狀態"] = statData["主角"]["契約使魔"]["當前狀態"] || { 所在位置: "尚未初始化", 特殊狀態: {} };
+              statData["主角"]["契約使魔"]["持有物品"] = statData["主角"]["契約使魔"]["持有物品"] || {};
+            } else {
+              statData["主角"]["契約使魔"] = null;
+            }
+          } else {
+            statData["$主角是否是使魔"] = true;
+            const fTitle = document.getElementById("fa-f-title").value.trim();
+            const fName = document.getElementById("fa-f-name").value.trim();
+            const fFullName = (fTitle || fName) ? `${fTitle || "無稱號"}-${fName || "未命名"}` : "尚未初始化";
+            const fElement = this.normalizeElement(document.getElementById("fa-f-element").value);
+            const fRace = this.normalizeRace(document.getElementById("fa-f-race-type").value);
+            const fStar = document.getElementById("fa-f-star").value.trim() || "1星";
+            const fClass = `${fElement}-${fRace}-${fStar}`;
+
+            statData["主角欄"]["名字"] = fFullName;
+            statData["主角欄"]["分類"] = fClass;
+            statData["主角欄"]["性別"] = this.getGenderStr('fa-f-gender', 'fa-f-gender-other');
+            statData["主角欄"]["身分"] = roleStr;
+            statData["主角欄"]["年級"] = gradeStr;
+            statData["主角欄"]["設定"] = document.getElementById("fa-f-persona").value || "尚未初始化";
+
+            statData["主角欄"]["當前狀態"] = statData["主角欄"]["當前狀態"] || { 所在位置: "尚未初始化", 特殊狀態: {} };
+            statData["主角欄"]["當前狀態"]["所在位置"] = document.getElementById("fa-f-status").value || "尚未初始化";
+            statData["主角欄"]["持有藝齒"] = parseInt(document.getElementById("fa-f-money").value) || 0;
+            if (typeof statData["主角欄"]["持有物品"] !== 'object' || statData["主角欄"]["持有物品"] === null) {
+                statData["主角欄"]["持有物品"] = {};
+            }
+
+            const hasContract = document.getElementById("fa-f-contract").value === "有";
+            statData["主角欄"]["是否有契約召喚者"] = hasContract;
+
+            if (hasContract) {
+              const cName = document.getElementById("fa-cf-name").value.trim() || "尚未初始化";
+              const cRole = document.getElementById("fa-cf-role").value.trim() || "尚未初始化";
+              const cPersona = document.getElementById("fa-cf-persona").value.trim() || "尚未初始化";
+
+              if (!statData['主角欄']['契約召喚者'] || typeof statData['主角欄']['契約召喚者'] === 'string') {
+                   statData['主角欄']['契約召喚者'] = this.getEmptySummonerBase();
+              }
+
+              let cGrade = this.cachedGeneratedSummonerGrade || "無";
+              if (cRole === "新生") cGrade = "一";
+              else if (!['一', '二', '三', '四', '五', '六', '無'].includes(cGrade)) cGrade = "無";
+
+              statData["主角欄"]["契約召喚者"]["名字"] = cName;
+              statData["主角欄"]["契約召喚者"]["性別"] = this.getGenderStr('fa-cf-gender', 'fa-cf-gender-other');
+              statData["主角欄"]["契約召喚者"]["身分"] = cRole;
+              statData["主角欄"]["契約召喚者"]["年級"] = cGrade; 
+              statData["主角欄"]["契約召喚者"]["設定"] = cPersona;
+              statData["主角欄"]["契約召喚者"]["當前狀態"] = statData["主角欄"]["契約召喚者"]["當前狀態"] || { 所在位置: "尚未初始化", 特殊狀態: {} };
+              statData["主角欄"]["契約召喚者"]["持有物品"] = statData["主角欄"]["契約召喚者"]["持有物品"] || {};
+            } else {
+              statData["主角欄"]["契約召喚者"] = null;
+            }
+          }
+
+          _.set(currentData, "stat_data", statData);
+
+          const injBtn = document.getElementById("fa-inject-btn");
+          if (injBtn) {
+            injBtn.disabled = true;
+            injBtn.innerText = "入學中...";
+          }
 
           try {
-              const mvuContext = { type: "message", message_id: 0 }; 
-              const currentData = Mvu.getMvuData(mvuContext);
-              let statData = _.get(currentData, "stat_data");
-    
-              if (!statData || !statData["主角"] || !statData["主角欄"]) {
-                  statData = this.createFullBaseData();
-              }
-    
-              const roleStr = this.getRoleStr();
-              const gradeStr = this.getGrade();
-              const toneStr = document.getElementById("fa-story-tone").value;
-              const bondChar = document.getElementById("fa-bond-character").value;
-              
-              statData["基調"] = toneStr;
-    
-              let hasContract = false;
-              if (this.isHuman) {
-                statData["$主角是否是使魔"] = false;
-                statData["主角"]["名字"] = document.getElementById("fa-h-name").value || "尚未初始化";
-                statData["主角"]["性別"] = this.getGenderStr('fa-h-gender', 'fa-h-gender-other');
-                statData["主角"]["身分"] = roleStr;
-                statData["主角"]["年級"] = gradeStr;
-                statData["主角"]["設定"] = document.getElementById("fa-h-persona").value || "尚未初始化";
-                
-                statData["主角"]["當前狀態"] = statData["主角"]["當前狀態"] || { 所在位置: "尚未初始化", 特殊狀態: {} };
-                statData["主角"]["當前狀態"]["所在位置"] = document.getElementById("fa-h-status").value || "尚未初始化";
-                statData["主角"]["持有藝齒"] = parseInt(document.getElementById("fa-h-money").value) || 0;
-                if (typeof statData["主角"]["持有物品"] !== 'object' || statData["主角"]["持有物品"] === null) {
-                    statData["主角"]["持有物品"] = {};
-                }
-    
-                hasContract = document.getElementById("fa-h-contract").value === "有";
-                statData["主角"]["是否有契約使魔"] = hasContract;
-    
-                if (hasContract) {
-                  const cTitle = document.getElementById("fa-ch-title").value.trim();
-                  const cName = document.getElementById("fa-ch-name").value.trim();
-                  const cFullName = (cTitle || cName) ? `${cTitle || "無稱號"}-${cName || "未命名"}` : "尚未初始化";
-                  const cElement = this.normalizeElement(document.getElementById("fa-ch-element").value);
-                  const cRace = this.normalizeRace(document.getElementById("fa-ch-race-type").value);
-                  const cStar = document.getElementById("fa-ch-star").value.trim() || "1星";
-                  const cClass = `${cElement}-${cRace}-${cStar}`;
-    
-                  if (!statData['主角']['契約使魔'] || typeof statData['主角']['契約使魔'] === 'string') {
-                       statData['主角']['契約使魔'] = this.getEmptyFamiliarBase();
-                  }
-    
-                  statData["主角"]["契約使魔"]["名字"] = cFullName;
-                  statData["主角"]["契約使魔"]["分類"] = cClass;
-                  statData["主角"]["契約使魔"]["性別"] = this.getGenderStr('fa-ch-gender', 'fa-ch-gender-other');
-                  statData["主角"]["契約使魔"]["設定"] = document.getElementById("fa-ch-persona").value || "尚未初始化"; 
-                  statData["主角"]["契約使魔"]["當前狀態"] = statData["主角"]["契約使魔"]["當前狀態"] || { 所在位置: "尚未初始化", 特殊狀態: {} };
-                  statData["主角"]["契約使魔"]["持有物品"] = statData["主角"]["契約使魔"]["持有物品"] || {};
-                } else {
-                  statData["主角"]["契約使魔"] = null;
-                }
-              } else {
-                statData["$主角是否是使魔"] = true;
-                const fTitle = document.getElementById("fa-f-title").value.trim();
-                const fName = document.getElementById("fa-f-name").value.trim();
-                const fFullName = (fTitle || fName) ? `${fTitle || "無稱號"}-${fName || "未命名"}` : "尚未初始化";
-                const fElement = this.normalizeElement(document.getElementById("fa-f-element").value);
-                const fRace = this.normalizeRace(document.getElementById("fa-f-race-type").value);
-                const fStar = document.getElementById("fa-f-star").value.trim() || "1星";
-                const fClass = `${fElement}-${fRace}-${fStar}`;
-    
-                statData["主角欄"]["名字"] = fFullName;
-                statData["主角欄"]["分類"] = fClass;
-                statData["主角欄"]["性別"] = this.getGenderStr('fa-f-gender', 'fa-f-gender-other');
-                statData["主角欄"]["身分"] = roleStr;
-                statData["主角欄"]["年級"] = gradeStr;
-                statData["主角欄"]["設定"] = document.getElementById("fa-f-persona").value || "尚未初始化";
-    
-                statData["主角欄"]["當前狀態"] = statData["主角欄"]["當前狀態"] || { 所在位置: "尚未初始化", 特殊狀態: {} };
-                statData["主角欄"]["當前狀態"]["所在位置"] = document.getElementById("fa-f-status").value || "尚未初始化";
-                statData["主角欄"]["持有藝齒"] = parseInt(document.getElementById("fa-f-money").value) || 0;
-                if (typeof statData["主角欄"]["持有物品"] !== 'object' || statData["主角欄"]["持有物品"] === null) {
-                    statData["主角欄"]["持有物品"] = {};
-                }
-    
-                hasContract = document.getElementById("fa-f-contract").value === "有";
-                statData["主角欄"]["是否有契約召喚者"] = hasContract;
-    
-                if (hasContract) {
-                  const cName = document.getElementById("fa-cf-name").value.trim() || "尚未初始化";
-                  const cRole = document.getElementById("fa-cf-role").value.trim() || "尚未初始化";
-                  const cPersona = document.getElementById("fa-cf-persona").value.trim() || "尚未初始化";
-    
-                  if (!statData['主角欄']['契約召喚者'] || typeof statData['主角欄']['契約召喚者'] === 'string') {
-                       statData['主角欄']['契約召喚者'] = this.getEmptySummonerBase();
-                  }
-    
-                  let cGrade = this.cachedGeneratedSummonerGrade || "無";
-                  if (cRole === "新生") cGrade = "一";
-                  else if (!['一', '二', '三', '四', '五', '六', '無'].includes(cGrade)) cGrade = "無";
-    
-                  statData["主角欄"]["契約召喚者"]["名字"] = cName;
-                  statData["主角欄"]["契約召喚者"]["性別"] = this.getGenderStr('fa-cf-gender', 'fa-cf-gender-other');
-                  statData["主角欄"]["契約召喚者"]["身分"] = cRole;
-                  statData["主角欄"]["契約召喚者"]["年級"] = cGrade; 
-                  statData["主角欄"]["契約召喚者"]["設定"] = cPersona;
-                  statData["主角欄"]["契約召喚者"]["當前狀態"] = statData["主角欄"]["契約召喚者"]["當前狀態"] || { 所在位置: "尚未初始化", 特殊狀態: {} };
-                  statData["主角欄"]["契約召喚者"]["持有物品"] = statData["主角欄"]["契約召喚者"]["持有物品"] || {};
-                } else {
-                  statData["主角欄"]["契約召喚者"] = null;
-                }
-              }
-    
-              _.set(currentData, "stat_data", statData);
-              await Mvu.replaceMvuData(currentData, mvuContext);
-              
-              if (typeof toastr !== "undefined") toastr.success("入學手續完成，變量已注入！");
-              
-              // ----------------------------------------------------
-              // 觸發 SillyTavern 推理流程 (注入自定義開局指令)
-              // ----------------------------------------------------
-              try {
-                  const startingfloor = this.generateIntroPrompt(this.isHuman, roleStr, hasContract, toneStr, bondChar);
-                  if (typeof createChatMessages !== 'undefined') {
-                      await createChatMessages([{ role: 'user', message: startingfloor }]);
-                  } else {
-                      console.warn("未檢測到 createChatMessages 函數，跳過訊息寫入");
-                  }
-                  
-                  // 等待 5 秒鐘確保 DOM 更新與寫入完成
-                  await new Promise(r => setTimeout(r, 5000));
-                  
-                  if (typeof triggerSlash !== 'undefined') {
-                      await triggerSlash('/trigger');
-                  } else {
-                      console.warn("未檢測到 triggerSlash 函數，無法觸發模型回應");
-                  }
-              } catch (innerErr) {
-                  console.error("執行開局訊息/Slash指令失敗:", innerErr);
-                  if (typeof toastr !== 'undefined') toastr.warning("變數已注入，但自動觸發回覆失敗。");
-              }
+            await Mvu.replaceMvuData(currentData, mvuContext);
+            if (typeof toastr !== "undefined") toastr.success("變量已注入！正在生成開局劇情（5秒後觸發）...");
 
+            const hasContractFinal = this.isHuman
+              ? document.getElementById("fa-h-contract").value === "有"
+              : document.getElementById("fa-f-contract").value === "有";
+            const bondChar = document.getElementById("fa-bond-character").value;
+
+            const fa_starting_floor_message = this.generateIntroPrompt(
+              this.isHuman,
+              roleStr,
+              hasContractFinal,
+              toneStr,
+              bondChar
+            );
+
+            await createChatMessages([{ role: "user", message: fa_starting_floor_message }]);
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+            await triggerSlash("/trigger");
           } catch (error) {
-              console.error("變量注入失敗:", error);
-              if (typeof toastr !== "undefined") toastr.error("變量注入失敗，請查看控制台。");
-          } finally {
+            console.error("變量注入或觸發開局失敗:", error);
+            if (typeof toastr !== "undefined") toastr.error("執行失敗，請查看控制台。");
+            if (injBtn) {
+              injBtn.disabled = false;
               injBtn.innerText = "注入變量並入學";
-              // 注意：此處保持 disabled 狀態，防止使用者瘋狂連點
+            }
           }
         }
       });

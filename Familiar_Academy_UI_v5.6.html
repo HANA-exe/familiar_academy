@@ -1,0 +1,1906 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>使魔學院入學系統</title>
+    <style>
+      #fa-app-container {
+        --fa-bg-color: #1e1e2e;
+        --fa-panel-bg: #2a2a3c;
+        --fa-text-color: #cdd6f4;
+        --fa-border-color: #45475a;
+        --fa-accent-color: #89b4fa;
+        --fa-disabled-color: #6c7086;
+
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--fa-bg-color);
+        color: var(--fa-text-color);
+        margin: 0;
+        display: flex;
+        height: 600px;
+        overflow: hidden;
+        border: 1px solid var(--fa-border-color);
+        border-radius: 8px;
+        text-align: left;
+      }
+      #fa-app-container .fa-sidebar {
+        width: 200px;
+        background-color: var(--fa-panel-bg);
+        border-right: 1px solid var(--fa-border-color);
+        padding: 20px 0;
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+      }
+      #fa-app-container .fa-sidebar button {
+        background: none;
+        border: none;
+        color: var(--fa-text-color);
+        padding: 15px 20px;
+        text-align: left;
+        font-size: 16px;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          border-left 0.2s;
+        border-left: 3px solid transparent;
+      }
+      #fa-app-container .fa-sidebar button:hover {
+        background-color: rgba(137, 180, 250, 0.1);
+      }
+      #fa-app-container .fa-sidebar button.fa-active {
+        background-color: rgba(137, 180, 250, 0.2);
+        border-left: 3px solid var(--fa-accent-color);
+        font-weight: bold;
+      }
+      #fa-app-container .fa-content {
+        flex: 1;
+        padding: 30px;
+        overflow-y: auto;
+      }
+      #fa-app-container .fa-page {
+        display: none;
+        max-width: 600px;
+      }
+      #fa-app-container .fa-page.fa-active {
+        display: block;
+      }
+      #fa-app-container h1 {
+        font-size: 2em;
+        margin-top: 0;
+        color: var(--fa-accent-color);
+      }
+      #fa-app-container h2 {
+        font-size: 1.5em;
+        margin-top: 0;
+        border-bottom: 1px solid var(--fa-border-color);
+        padding-bottom: 10px;
+      }
+      #fa-app-container .fa-subtitle {
+        font-size: 0.9em;
+        color: #a6adc8;
+        margin-bottom: 20px;
+      }
+      #fa-app-container .fa-form-group {
+        margin-bottom: 20px;
+      }
+      #fa-app-container label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+      }
+      #fa-app-container input[type="text"],
+      #fa-app-container input[type="number"],
+      #fa-app-container select,
+      #fa-app-container textarea {
+        width: 100%;
+        padding: 10px;
+        background-color: #181825;
+        border: 1px solid var(--fa-border-color);
+        color: var(--fa-text-color);
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      #fa-app-container textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+      #fa-app-container .fa-radio-group {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 10px;
+      }
+      #fa-app-container .fa-radio-group label {
+        display: flex;
+        align-items: center;
+        font-weight: normal;
+        cursor: pointer;
+        margin-bottom: 0;
+      }
+      #fa-app-container .fa-money-input-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      #fa-app-container .fa-money-input-group input {
+        width: 150px;
+        text-align: right;
+      }
+      #fa-app-container .fa-btn {
+        background-color: var(--fa-border-color);
+        color: var(--fa-text-color);
+        border: none;
+        padding: 10px 15px;
+        cursor: pointer;
+        border-radius: 4px;
+        font-family: inherit;
+      }
+      #fa-app-container .fa-btn:hover {
+        background-color: #585b70;
+      }
+      #fa-app-container .fa-btn:disabled {
+        background-color: var(--fa-border-color) !important;
+        color: var(--fa-disabled-color) !important;
+        cursor: not-allowed;
+      }
+      #fa-app-container .fa-inline-group {
+        display: flex;
+        gap: 10px;
+      }
+      #fa-app-container .fa-actions {
+        margin-top: 30px;
+        display: flex;
+        gap: 15px;
+      }
+      #fa-app-container .fa-btn-primary {
+        background-color: var(--fa-accent-color);
+        color: #11111b;
+        font-weight: bold;
+      }
+      #fa-app-container .fa-btn-primary:hover:not(:disabled) {
+        background-color: #74c7ec;
+      }
+      #fa-app-container fieldset {
+        border: none;
+        padding: 0;
+        margin: 0;
+      }
+      #fa-app-container fieldset:disabled {
+        opacity: 0.4;
+        pointer-events: none;
+      }
+      #fa-app-container .fa-hidden {
+        display: none !important;
+      }
+      #fa-summary-list {
+        background-color: #181825;
+        padding: 20px;
+        border-radius: 4px;
+        border: 1px solid var(--fa-border-color);
+      }
+      #fa-summary-list p {
+        margin: 10px 0;
+      }
+      #fa-summary-list strong {
+        color: #a6e3a1;
+      }
+      /* 手機版響應式排版 */
+      @media (max-width: 768px) {
+        #fa-app-container {
+          flex-direction: column;
+          height: 75vh;
+          min-height: 520px;
+        }
+        #fa-app-container .fa-sidebar {
+          width: 100%;
+          padding: 0;
+          border-right: none;
+          border-bottom: 1px solid var(--fa-border-color);
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+        }
+        #fa-app-container .fa-sidebar button {
+          padding: 10px 8px;
+          font-size: 13px;
+          text-align: center;
+          border-left: none;
+          border-bottom: 3px solid transparent;
+        }
+        #fa-app-container .fa-sidebar button.fa-active {
+          border-left: none;
+          border-bottom: 3px solid var(--fa-accent-color);
+        }
+        #fa-app-container .fa-content {
+          padding: 16px;
+        }
+        #fa-app-container h1 {
+          font-size: 1.5em;
+        }
+        #fa-app-container .fa-money-input-group input {
+          width: 110px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="fa-app-container">
+      <div class="fa-sidebar">
+        <button
+          class="fa-nav-btn fa-active"
+          data-target="fa-page1"
+          onclick="window.faApp.handleNavClick(this)"
+        >
+          第一頁：首頁
+        </button>
+        <button
+          class="fa-nav-btn"
+          data-target="fa-page2"
+          onclick="window.faApp.handleNavClick(this)"
+        >
+          第二頁：基本資料
+        </button>
+        <button
+          class="fa-nav-btn"
+          data-target="fa-page3"
+          onclick="window.faApp.handleNavClick(this)"
+        >
+          第三頁：契約對象
+        </button>
+        <button
+          class="fa-nav-btn"
+          data-target="fa-page4"
+          onclick="window.faApp.handleNavClick(this)"
+        >
+          第四頁：確認入學
+        </button>
+      </div>
+
+      <div class="fa-content">
+        <!-- 第一頁 -->
+        <div id="fa-page1" class="fa-page fa-active">
+          <h1>
+            歡迎入學使魔學院
+            <span style="font-size: 0.4em; color: var(--fa-disabled-color)"
+              >v5.6</span
+            >
+          </h1>
+          <div class="fa-form-group">
+            <label>你真的是人類嗎？</label>
+            <div class="fa-radio-group">
+              <label
+                ><input
+                  type="radio"
+                  name="fa-race"
+                  value="human"
+                  checked
+                  onchange="window.faApp.updateRace()"
+                />
+                人類</label
+              >
+              <label
+                ><input
+                  type="radio"
+                  name="fa-race"
+                  value="familiar"
+                  onchange="window.faApp.updateRace()"
+                />
+                使魔</label
+              >
+            </div>
+            <div class="fa-subtitle">
+              備註: 根據是否是人類，將影響之後頁面的版本與顯示。
+            </div>
+          </div>
+          <div class="fa-form-group">
+            <label>你的身分是？</label>
+            <select id="fa-role-select" onchange="window.faApp.updateRole()">
+              <option value="新生">新生</option>
+              <option value="高年級生">高年級生</option>
+              <option value="教師">教師</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <div class="fa-form-group fa-hidden" id="fa-role-other-container">
+            <label>請輸入其他身分：</label>
+            <input
+              type="text"
+              id="fa-role-other-input"
+              placeholder="例如：校外工友"
+            />
+          </div>
+        </div>
+
+        <!-- 第二頁 (人類版) -->
+        <div id="fa-page2-human" class="fa-page">
+          <h2>基本資料 (人類)</h2>
+          <div class="fa-form-group">
+            <label>名字</label><input type="text" id="fa-h-name" />
+          </div>
+          <div class="fa-form-group">
+            <label>性別</label>
+            <div class="fa-inline-group">
+              <select
+                id="fa-h-gender"
+                onchange="
+                  window.faApp.checkGenderOther(this, 'fa-h-gender-other')
+                "
+              >
+                <option>男</option>
+                <option>女</option>
+                <option>其他</option>
+              </select>
+              <input
+                type="text"
+                id="fa-h-gender-other"
+                class="fa-hidden"
+                placeholder="請輸入自訂性別"
+              />
+            </div>
+          </div>
+          <div class="fa-form-group">
+            <label>人設</label><textarea id="fa-h-persona"></textarea>
+          </div>
+          <div class="fa-form-group fa-grade-container fa-hidden">
+            <label>年級</label>
+            <select id="fa-h-grade">
+              <option>二</option>
+              <option>三</option>
+              <option>四</option>
+              <option>五</option>
+              <option>六</option>
+            </select>
+          </div>
+          <div class="fa-form-group">
+            <label>初始金錢 (藝齒)</label>
+            <div class="fa-money-input-group">
+              <button
+                class="fa-btn"
+                onclick="window.faApp.changeMoney('fa-h-money', -100)"
+              >
+                -
+              </button>
+              <input
+                type="number"
+                id="fa-h-money"
+                value="0"
+                min="0"
+                step="100"
+              />
+              <button
+                class="fa-btn"
+                onclick="window.faApp.changeMoney('fa-h-money', 100)"
+              >
+                +
+              </button>
+            </div>
+          </div>
+          <div class="fa-form-group">
+            <label>當前狀態</label><input type="text" id="fa-h-status" />
+          </div>
+          <div class="fa-form-group">
+            <label>契約使魔</label>
+            <select id="fa-h-contract" onchange="window.faApp.updateContract()">
+              <option value="有">有</option>
+              <option value="無">無</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 第二頁 (使魔版) -->
+        <div id="fa-page2-familiar" class="fa-page">
+          <h2>基本資料 (使魔)</h2>
+          <div class="fa-form-group">
+            <label>名字 (稱號 與 姓名)</label>
+            <div class="fa-inline-group">
+              <input type="text" id="fa-f-title" placeholder="稱號" />
+              <input type="text" id="fa-f-name" placeholder="姓名" />
+            </div>
+          </div>
+          <div class="fa-form-group">
+            <label>屬性</label>
+            <select id="fa-f-element">
+              <option>地</option>
+              <option>水</option>
+              <option>炎</option>
+              <option>風</option>
+              <option>光</option>
+              <option>闇</option>
+            </select>
+          </div>
+          <div class="fa-form-group">
+            <label>種族</label>
+            <select id="fa-f-race-type">
+              <option>惡魔</option>
+              <option>天使</option>
+              <option>機械</option>
+              <option>龍</option>
+              <option>植物</option>
+              <option>爬蟲</option>
+              <option>昆蟲</option>
+              <option>不死</option>
+              <option>雷族</option>
+              <option>炎族</option>
+              <option>水族</option>
+              <option>海龍</option>
+              <option>鳥獸</option>
+              <option>獸族</option>
+              <option>魚族</option>
+              <option>幻龍</option>
+              <option>恐龍</option>
+              <option>魔法使族</option>
+              <option>戰士族</option>
+            </select>
+          </div>
+          <div class="fa-form-group">
+            <label>星級或階級 (用於分類)</label
+            ><input type="text" id="fa-f-star" placeholder="例如：1星、階級1" />
+          </div>
+          <div class="fa-form-group">
+            <label>性別</label>
+            <div class="fa-inline-group">
+              <select
+                id="fa-f-gender"
+                onchange="
+                  window.faApp.checkGenderOther(this, 'fa-f-gender-other')
+                "
+              >
+                <option>男</option>
+                <option>女</option>
+                <option>無</option>
+                <option>其他</option>
+              </select>
+              <input
+                type="text"
+                id="fa-f-gender-other"
+                class="fa-hidden"
+                placeholder="請輸入自訂性別"
+              />
+            </div>
+          </div>
+          <div class="fa-form-group">
+            <label>人設</label><textarea id="fa-f-persona"></textarea>
+          </div>
+          <div class="fa-form-group fa-grade-container fa-hidden">
+            <label>年級</label>
+            <select id="fa-f-grade">
+              <option>二</option>
+              <option>三</option>
+              <option>四</option>
+              <option>五</option>
+              <option>六</option>
+            </select>
+          </div>
+          <div class="fa-form-group">
+            <label>初始金錢 (藝齒)</label>
+            <div class="fa-money-input-group">
+              <button
+                class="fa-btn"
+                onclick="window.faApp.changeMoney('fa-f-money', -100)"
+              >
+                -
+              </button>
+              <input
+                type="number"
+                id="fa-f-money"
+                value="0"
+                min="0"
+                step="100"
+              />
+              <button
+                class="fa-btn"
+                onclick="window.faApp.changeMoney('fa-f-money', 100)"
+              >
+                +
+              </button>
+            </div>
+          </div>
+          <div class="fa-form-group">
+            <label>當前狀態</label><input type="text" id="fa-f-status" />
+          </div>
+          <div class="fa-form-group">
+            <label>契約召喚者</label>
+            <select id="fa-f-contract" onchange="window.faApp.updateContract()">
+              <option value="有">有</option>
+              <option value="無">無</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 第三頁 (人類版) -->
+        <div id="fa-page3-human" class="fa-page">
+          <h2>你的使魔</h2>
+          <div class="fa-subtitle">之前選有使魔但這裡沒填，會給你隨機使魔</div>
+          <fieldset id="fa-fs-h-contract">
+            <div class="fa-form-group">
+              <label>名字 (稱號 與 姓名)</label>
+              <div class="fa-inline-group">
+                <input type="text" id="fa-ch-title" placeholder="稱號" />
+                <input type="text" id="fa-ch-name" placeholder="姓名" />
+              </div>
+            </div>
+            <div class="fa-form-group">
+              <label>屬性</label>
+              <select id="fa-ch-element">
+                <option value="未定" selected>未定</option>
+                <option>地</option>
+                <option>水</option>
+                <option>炎</option>
+                <option>風</option>
+                <option>光</option>
+                <option>闇</option>
+              </select>
+            </div>
+            <div class="fa-form-group">
+              <label>種族</label>
+              <select id="fa-ch-race-type">
+                <option value="未定" selected>未定</option>
+                <option>惡魔</option>
+                <option>天使</option>
+                <option>機械</option>
+                <option>龍</option>
+                <option>植物</option>
+                <option>爬蟲</option>
+                <option>昆蟲</option>
+                <option>不死</option>
+                <option>雷族</option>
+                <option>炎族</option>
+                <option>水族</option>
+                <option>海龍</option>
+                <option>鳥獸</option>
+                <option>獸族</option>
+                <option>魚族</option>
+                <option>幻龍</option>
+                <option>恐龍</option>
+                <option>魔法使族</option>
+                <option>戰士族</option>
+              </select>
+            </div>
+            <div class="fa-form-group">
+              <label>星級或階級 (用於分類)</label
+              ><input
+                type="text"
+                id="fa-ch-star"
+                placeholder="例如：1星、階級10"
+              />
+            </div>
+            <div class="fa-form-group">
+              <label>性別</label>
+              <div class="fa-inline-group">
+                <select
+                  id="fa-ch-gender"
+                  onchange="
+                    window.faApp.checkGenderOther(this, 'fa-ch-gender-other')
+                  "
+                >
+                  <option value="未定" selected>未定</option>
+                  <option>男</option>
+                  <option>女</option>
+                  <option>無</option>
+                  <option>其他</option>
+                </select>
+                <input
+                  type="text"
+                  id="fa-ch-gender-other"
+                  class="fa-hidden"
+                  placeholder="請輸入自訂性別"
+                />
+              </div>
+            </div>
+            <div class="fa-form-group">
+              <label>人設與背景</label><textarea id="fa-ch-persona"></textarea>
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- 第三頁 (使魔版) -->
+        <div id="fa-page3-familiar" class="fa-page">
+          <h2>你的召喚者</h2>
+          <div class="fa-subtitle">
+            之前選有召喚者但這裡沒填，會給你生成召喚者
+          </div>
+          <fieldset id="fa-fs-f-contract">
+            <div class="fa-form-group">
+              <label>名字</label><input type="text" id="fa-cf-name" />
+            </div>
+            <div class="fa-form-group">
+              <label>性別</label>
+              <div class="fa-inline-group">
+                <select
+                  id="fa-cf-gender"
+                  onchange="
+                    window.faApp.checkGenderOther(this, 'fa-cf-gender-other')
+                  "
+                >
+                  <option value="未定" selected>未定</option>
+                  <option>男</option>
+                  <option>女</option>
+                  <option>其他</option>
+                </select>
+                <input
+                  type="text"
+                  id="fa-cf-gender-other"
+                  class="fa-hidden"
+                  placeholder="請輸入自訂性別"
+                />
+              </div>
+            </div>
+            <div class="fa-form-group">
+              <label>人設</label><textarea id="fa-cf-persona"></textarea>
+            </div>
+            <div class="fa-form-group">
+              <label>身分</label><input type="text" id="fa-cf-role" />
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- 第四頁 -->
+        <div id="fa-page4" class="fa-page">
+          <h2>確認個人資料</h2>
+          <div id="fa-summary-list"></div>
+
+          <div
+            class="fa-form-group"
+            style="
+              margin-top: 25px;
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              flex-wrap: wrap;
+            "
+          >
+            <label style="margin-bottom: 0">基調</label>
+            <select id="fa-story-tone" style="width: 100px">
+              <option value="普通" selected>普通</option>
+              <option value="瑟瑟">瑟瑟</option>
+              <option value="搞笑">搞笑</option>
+            </select>
+
+            <label style="margin-bottom: 0; margin-left: 10px">結緣角色</label>
+            <input
+              type="text"
+              id="fa-bond-character"
+              style="width: 150px"
+              placeholder="可留空"
+            />
+
+            <span style="font-size: 0.85em; color: #a6adc8; margin-left: 5px"
+              >(僅影響開局劇情)</span
+            >
+          </div>
+
+          <div class="fa-actions">
+            <button
+              class="fa-btn fa-btn-primary"
+              id="fa-generate-btn"
+              onclick="window.faApp.generateContent()"
+            >
+              生成內容
+            </button>
+            <button
+              class="fa-btn"
+              id="fa-inject-btn"
+              disabled
+              onclick="window.faApp.injectVariables()"
+            >
+              注入變量並入學
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ==========================================
+      // 提示詞模板與規則
+      // ==========================================
+      const FA_PROMPT_BASE = `通用提示詞
+      你是一個「西方奇幻召喚師學院」世界觀的背景設定與技能生成引擎。
+      你的唯一任務是根據使用者提供的角色背景，生成對應的設定資料。
+      絕對不要輸出任何解釋、開場白或 Markdown 標籤，你的回覆必須是純粹且合法的 JSON 格式。`;
+
+      const FA_MAGIC_RULES = `**注意以下設定**:
+      - 世界設定中，魔法被世界意志所限制，無法用來攻擊，具體限制如下**:
+          魔法無法被用來強化身體、強化武器、製造武器、放出攻擊。
+          魔法製造或附魔的道具一旦被用來攻擊，其魔法效果會完全失效，變成凡物。
+          召喚來自其他世界的"使魔"的召喚魔法不視為攻擊，但你不用生成。
+      - 世界觀下的常見魔法運用:
+          通則: 魔力最好用的地方給是用來解決各種雞毛蒜皮的小事，比如搬重物、找剪刀、摸黑上廁所、清潔等。因此過於華麗或宏大的魔法基本不受重視。
+          魔法範例:
+            微光術: 光屬性。產生如同燭火的光源。
+            立足術: 地屬性。產生可以供站立的土塊。
+            炎屬性: 暖陽術。在手中產生溫暖的熱量。`;
+
+      const FA_MAGIC_JSON_EXAMPLE = `"magics": {
+        "魔法名": {
+          "屬性": "地"|"水"|"炎"|"風"|"光"|"闇",
+          "效果": "", // 10~30字的魔法效果介紹
+          "描述": "" // 10~20字的魔法定位或背景介紹
+        }
+      }`;
+
+      const FA_ABILITY_JSON_EXAMPLE = `"abilities": {
+        "能力名": {
+          "類型": "", // 主動或被動
+          "效果": "能力效果說明，10~30字",
+          "描述": "能力背景敘述，10~20字"
+        }
+      }`;
+
+      const FA_FAMILIAR_PROFILE_EXAMPLE = `"profile": {
+        "稱號": "",
+        "名字": "",
+        "屬性": "地"|"水"|"炎"|"風"|"光"|"闇",
+        "種族": "惡魔族"|"天使族"|"機械族"|"龍族"|"植物族"|"爬蟲族"|"昆蟲族"|"不死族"|"雷族"|"炎族"|"水族"|"海龍族"|"鳥獸族"|"獸族"|"魚族"|"幻龍族"|"恐龍族"|"魔法使族"|"戰士族",
+        "星級": "", // 格式為 "1~12星（階級）"
+        "性別": "", // 使魔的性別，可為無性或其他
+        "設定": "" // 使魔的性格、外貌與和主人的關係，100~200字
+      }`;
+
+      const FA_SUMMONER_PROFILE_EXAMPLE = `"profile": {
+        "名字": "",
+        "性別": "",
+        "身分": "", // 若為 新生|高年級生|教師 則直接填入對應身分
+        "年級": "一"|"二"|"三"|"四"|"五"|"六"|"無", // 若非學生一律填無
+        "設定": "" // 召喚者的性格、外貌與和使魔的關係，100~200字
+      }`;
+
+      window.faApp = window.faApp || {};
+
+      Object.assign(window.faApp, {
+        isHuman: true,
+        cachedGeneratedSummonerGrade: null,
+
+        init() {
+          this.updateRace();
+          this.updateRole();
+          this.updateContract();
+        },
+
+        handleNavClick(btnElem) {
+          document
+            .querySelectorAll(".fa-nav-btn")
+            .forEach((b) => b.classList.remove("fa-active"));
+          btnElem.classList.add("fa-active");
+          this.showPage(btnElem.dataset.target);
+        },
+
+        showPage(target) {
+          document
+            .querySelectorAll(".fa-page")
+            .forEach((p) => p.classList.remove("fa-active"));
+
+          let actualTarget = target;
+          if (target === "fa-page2")
+            actualTarget = this.isHuman
+              ? "fa-page2-human"
+              : "fa-page2-familiar";
+          else if (target === "fa-page3")
+            actualTarget = this.isHuman
+              ? "fa-page3-human"
+              : "fa-page3-familiar";
+          else if (target === "fa-page4") this.renderSummary();
+
+          const targetElem = document.getElementById(actualTarget);
+          if (targetElem) targetElem.classList.add("fa-active");
+        },
+
+        updateRace() {
+          const raceInput = document.querySelector(
+            'input[name="fa-race"]:checked',
+          );
+          if (!raceInput) return;
+          this.isHuman = raceInput.value === "human";
+
+          const p2Btn = document.querySelector(
+            '.fa-nav-btn[data-target="fa-page2"]',
+          );
+          const p3Btn = document.querySelector(
+            '.fa-nav-btn[data-target="fa-page3"]',
+          );
+          if (p2Btn)
+            p2Btn.textContent = this.isHuman
+              ? "第二頁：基本資料 (人類)"
+              : "第二頁：基本資料 (使魔)";
+          if (p3Btn)
+            p3Btn.textContent = this.isHuman
+              ? "第三頁：你的使魔"
+              : "第三頁：你的召喚者";
+
+          const activePage = document.querySelector(".fa-page.fa-active");
+          if (activePage) {
+            const activeId = activePage.id;
+            if (activeId.startsWith("fa-page2")) this.showPage("fa-page2");
+            if (activeId.startsWith("fa-page3")) this.showPage("fa-page3");
+          }
+        },
+
+        updateRole() {
+          const select = document.getElementById("fa-role-select");
+          if (!select) return;
+          const role = select.value;
+          const isOther = role === "其他";
+
+          const otherContainer = document.getElementById(
+            "fa-role-other-container",
+          );
+          if (otherContainer)
+            otherContainer.classList.toggle("fa-hidden", !isOther);
+
+          const isSenior = role === "高年級生";
+          document.querySelectorAll(".fa-grade-container").forEach((el) => {
+            el.classList.toggle("fa-hidden", !isSenior);
+          });
+        },
+
+        updateContract() {
+          const hContract = document.getElementById("fa-h-contract");
+          const fContract = document.getElementById("fa-f-contract");
+          const fsH = document.getElementById("fa-fs-h-contract");
+          const fsF = document.getElementById("fa-fs-f-contract");
+
+          if (hContract && fsH) fsH.disabled = !(hContract.value === "有");
+          if (fContract && fsF) fsF.disabled = !(fContract.value === "有");
+        },
+
+        changeMoney(inputId, amount) {
+          const el = document.getElementById(inputId);
+          if (!el) return;
+          let val = parseInt(el.value) || 0;
+          val = Math.max(0, val + amount);
+          el.value = val;
+        },
+
+        checkGenderOther(selectElem, otherInputId) {
+          const inputElem = document.getElementById(otherInputId);
+          if (!inputElem) return;
+          if (selectElem.value === "其他") {
+            inputElem.classList.remove("fa-hidden");
+          } else {
+            inputElem.classList.add("fa-hidden");
+            inputElem.value = "";
+          }
+        },
+
+        getRoleStr() {
+          const role = document.getElementById("fa-role-select").value;
+          if (role === "其他")
+            return (
+              document.getElementById("fa-role-other-input").value || "未指定"
+            );
+          return role;
+        },
+
+        getGrade() {
+          const role = document.getElementById("fa-role-select").value;
+          if (role === "新生") return "一";
+          if (role === "高年級生") {
+            return this.isHuman
+              ? document.getElementById("fa-h-grade").value
+              : document.getElementById("fa-f-grade").value;
+          }
+          return "無";
+        },
+
+        getGenderStr(selectId, inputId) {
+          const selectVal = document.getElementById(selectId).value;
+          if (selectVal === "其他")
+            return document.getElementById(inputId).value || "未填寫";
+          return selectVal;
+        },
+
+        renderSummary() {
+          const container = document.getElementById("fa-summary-list");
+          if (!container) return;
+          let html = "";
+          const roleStr = this.getRoleStr();
+          const gradeStr = this.getGrade();
+          const isSenior =
+            document.getElementById("fa-role-select").value === "高年級生";
+
+          if (this.isHuman) {
+            const genderStr = this.getGenderStr(
+              "fa-h-gender",
+              "fa-h-gender-other",
+            );
+            html += `<p><strong>種族：</strong> 人類</p>`;
+            html += `<p><strong>身分：</strong> ${roleStr}</p>`;
+            html += `<p><strong>名字：</strong> ${document.getElementById("fa-h-name").value || "未填寫"}</p>`;
+            html += `<p><strong>性別：</strong> ${genderStr}</p>`;
+            if (isSenior || gradeStr === "一")
+              html += `<p><strong>年級：</strong> ${gradeStr}</p>`;
+            html += `<p><strong>人設：</strong> ${document.getElementById("fa-h-persona").value || "未填寫"}</p>`;
+            html += `<p><strong>初始金钱：</strong> ${document.getElementById("fa-h-money").value}</p>`;
+            html += `<p><strong>當前狀態：</strong> ${document.getElementById("fa-h-status").value || "未填寫"}</p>`;
+
+            const hasContract =
+              document.getElementById("fa-h-contract").value === "有";
+            html += `<hr><p><strong>契約使魔：</strong> ${hasContract ? "有" : "無"}</p>`;
+
+            if (hasContract) {
+              const cName = document.getElementById("fa-ch-name").value;
+              const cTitle = document.getElementById("fa-ch-title").value;
+              const cGender = this.getGenderStr(
+                "fa-ch-gender",
+                "fa-ch-gender-other",
+              );
+              const displayCName =
+                cTitle || cName
+                  ? `[${cTitle || "無稱號"}] ${cName || "未填寫"}`
+                  : "<i>(將由系統隨機生成)</i>";
+              html += `<p><strong>使魔名字：</strong> ${displayCName}</p>`;
+              if (cName || cTitle) {
+                html += `<p><strong>使魔屬性：</strong> ${document.getElementById("fa-ch-element").value}</p>`;
+                html += `<p><strong>使魔種族：</strong> ${document.getElementById("fa-ch-race-type").value}</p>`;
+                html += `<p><strong>使魔星級：</strong> ${document.getElementById("fa-ch-star").value || "未填寫"}</p>`;
+                html += `<p><strong>使魔性別：</strong> ${cGender}</p>`;
+                html += `<p><strong>使魔設定：</strong> ${document.getElementById("fa-ch-persona").value || "未填寫"}</p>`;
+              }
+            }
+          } else {
+            const genderStr = this.getGenderStr(
+              "fa-f-gender",
+              "fa-f-gender-other",
+            );
+            html += `<p><strong>種族定位：</strong> 使魔</p>`;
+            html += `<p><strong>身分：</strong> ${roleStr}</p>`;
+            html += `<p><strong>名字：</strong> [${document.getElementById("fa-f-title").value || "無稱號"}] ${document.getElementById("fa-f-name").value || "未填寫"}</p>`;
+            html += `<p><strong>屬性：</strong> ${document.getElementById("fa-f-element").value}</p>`;
+            html += `<p><strong>種族：</strong> ${document.getElementById("fa-f-race-type").value}</p>`;
+            html += `<p><strong>星級：</strong> ${document.getElementById("fa-f-star").value || "未填寫"}</p>`;
+            html += `<p><strong>性別：</strong> ${genderStr}</p>`;
+            if (isSenior || gradeStr === "一")
+              html += `<p><strong>年級：</strong> ${gradeStr}</p>`;
+            html += `<p><strong>人設：</strong> ${document.getElementById("fa-f-persona").value || "未填寫"}</p>`;
+            html += `<p><strong>初始金钱：</strong> ${document.getElementById("fa-f-money").value}</p>`;
+            html += `<p><strong>當前狀態：</strong> ${document.getElementById("fa-f-status").value || "未填寫"}</p>`;
+
+            const hasContract =
+              document.getElementById("fa-f-contract").value === "有";
+            html += `<hr><p><strong>契約召喚者：</strong> ${hasContract ? "有" : "無"}</p>`;
+
+            if (hasContract) {
+              const cName = document.getElementById("fa-cf-name").value;
+              const cGender = this.getGenderStr(
+                "fa-cf-gender",
+                "fa-cf-gender-other",
+              );
+              html += `<p><strong>召喚者名字：</strong> ${cName ? cName : "<i>(將由系統生成)</i>"}</p>`;
+              if (cName) {
+                html += `<p><strong>召喚者性別：</strong> ${cGender}</p>`;
+                html += `<p><strong>召喚者身分：</strong> ${document.getElementById("fa-cf-role").value || "未填寫"}</p>`;
+                html += `<p><strong>召喚者人設：</strong> ${document.getElementById("fa-cf-persona").value || "未填寫"}</p>`;
+              }
+            }
+          }
+          container.innerHTML = html;
+        },
+
+        // 建立完整的新建變數骨架 (對齊 變量初始化.txt 與 使魔變量結構_3.txt)
+        createFullBaseData() {
+          return {
+            $主角是否是使魔: false,
+            世界資訊: {
+              日期: "2026/08/29",
+              時間: "08:40",
+            },
+            主角: {
+              名字: "尚未初始化",
+              性別: "尚未初始化",
+              身分: "尚未初始化",
+              年級: "尚未初始化",
+              設定: "尚未初始化",
+              當前狀態: {
+                所在位置: "尚未初始化",
+                特殊狀態: {},
+              },
+              持有藝齒: "尚未初始化",
+              持有物品: {},
+              魔法: "尚未初始化",
+              是否有契約使魔: false,
+              契約使魔: "尚未初始化",
+            },
+            主角欄: {
+              名字: "尚未初始化",
+              分類: "尚未初始化",
+              性別: "尚未初始化",
+              身分: "尚未初始化",
+              年級: "尚未初始化",
+              設定: "尚未初始化",
+              當前狀態: {
+                所在位置: "尚未初始化",
+                特殊狀態: {},
+              },
+              持有藝齒: "尚未初始化",
+              持有物品: {},
+              能力: "尚未初始化",
+              是否有契約召喚者: false,
+              契約召喚者: "尚未初始化",
+            },
+          };
+        },
+
+        // 修正屬性，防呆AI亂給雙屬性，且必須滿足 elementEnum
+        normalizeElement(elemStr) {
+          if (!elemStr) return "地";
+          const valid = ["地", "水", "炎", "風", "光", "闇"];
+          for (let v of valid) {
+            if (String(elemStr).includes(v)) return v;
+          }
+          return "地";
+        },
+
+        // 正規化種族，將提示詞中的「惡魔族」等對齊回 Schema 與 UI 的「惡魔」等
+        normalizeRace(raceStr) {
+          const validRaces = [
+            "惡魔",
+            "天使",
+            "機械",
+            "龍",
+            "植物",
+            "爬蟲",
+            "昆蟲",
+            "不死",
+            "雷族",
+            "炎族",
+            "水族",
+            "海龍",
+            "鳥獸",
+            "獸族",
+            "魚族",
+            "幻龍",
+            "恐龍",
+            "魔法使族",
+            "戰士族",
+          ];
+          if (!raceStr) return "惡魔";
+          const s = String(raceStr).trim();
+          if (validRaces.includes(s)) return s;
+          const stripped = s.replace(/族$/, "");
+          if (validRaces.includes(stripped)) return stripped;
+          for (const r of validRaces) {
+            if (s.includes(r)) return r;
+          }
+          return "惡魔";
+        },
+
+        // 正規化魔法物件結構 (不再擷取 AI 的層級/前置魔法/已學習，直接填入固定值)
+        normalizeMagics(rawObj) {
+          if (!rawObj || typeof rawObj !== "object") return {};
+          const result = {};
+          for (const [key, val] of Object.entries(rawObj)) {
+            if (typeof val === "object" && val !== null) {
+              result[key] = {
+                屬性: this.normalizeElement(val.屬性),
+                層級: 1,
+                前置魔法: "",
+                效果: String(val.效果 || ""),
+                已學習: true,
+                描述: String(val.描述 || ""),
+              };
+            } else if (typeof val === "string") {
+              result[key] = {
+                屬性: this.normalizeElement(val),
+                層級: 1,
+                前置魔法: "",
+                效果: val,
+                已學習: true,
+                描述: "",
+              };
+            }
+          }
+          return result;
+        },
+
+        // 正規化能力物件結構 (不再擷取 AI 的層級/前置能力/已學習，直接填入固定值)
+        normalizeAbilities(rawObj) {
+          if (!rawObj || typeof rawObj !== "object") return {};
+          const result = {};
+          for (const [key, val] of Object.entries(rawObj)) {
+            if (typeof val === "object" && val !== null) {
+              let typeStr = String(val.類型 || "被動");
+              result[key] = {
+                類型:
+                  typeStr.includes("主動") ||
+                  typeStr.toLowerCase().includes("act")
+                    ? "主動"
+                    : "被動",
+                層級: 1,
+                前置能力: "",
+                效果: String(val.效果 || ""),
+                已學習: true,
+                描述: String(val.描述 || ""),
+              };
+            } else if (typeof val === "string") {
+              result[key] = {
+                類型: "被動",
+                層級: 1,
+                前置能力: "",
+                效果: val,
+                已學習: true,
+                描述: "",
+              };
+            }
+          }
+          return result;
+        },
+
+        // 提供預設的空使魔骨架 (當原本是 uninit 或 null 時)
+        getEmptyFamiliarBase() {
+          return {
+            名字: "尚未初始化",
+            分類: "尚未初始化",
+            性別: "尚未初始化",
+            設定: "尚未初始化",
+            當前狀態: { 所在位置: "尚未初始化", 特殊狀態: {} },
+            持有藝齒: "尚未初始化",
+            持有物品: {},
+            能力: "尚未初始化",
+          };
+        },
+
+        // 提供預設的空召喚師骨架 (當原本是 uninit 或 null 時)
+        getEmptySummonerBase() {
+          return {
+            名字: "尚未初始化",
+            性別: "尚未初始化",
+            身分: "尚未初始化",
+            年級: "尚未初始化",
+            設定: "尚未初始化",
+            當前狀態: { 所在位置: "尚未初始化", 特殊狀態: {} },
+            持有藝齒: "尚未初始化",
+            持有物品: {},
+            魔法: "尚未初始化",
+          };
+        },
+
+        // 取得敘事開場劇情提示詞 (根據判定1~4替換對應內容)
+        generateIntroPrompt(isHuman, role, hasContract, tone, bondChar) {
+          const userStr = "<user>"; // 對於 ST，可以用固定字串，或是帶入實際玩家名稱變量
+          let prompt = `<開學典禮>
+                為「${userStr}」生成一段敘事開場劇情。變數已預置樓層（stat_data），請根據其中主角各項設定與既有關係起筆，無需複述變數值。\n\n`;
+
+          // 判定1：主角種族
+          if (isHuman) {
+            prompt += `透過環境、旁人動作、學校派系間的互動等引出馬那世界的魔法文化，以及主角身分、背景、在學院中的角色。\n\n`;
+          } else {
+            prompt += `以使魔的具體物種與型態切入（例如龍族、獸族、機械），不得默認${userStr}是人類或完全了解人類社會常識。世界觀自然呈現，從使魔視角展現魔法學院在異界生物眼中的樣態。\n\n`;
+          }
+
+          prompt += `場景發生在"阿特梅吉亞的大禮堂"，時間為"開學典禮即將開始"，${userStr}的身分為「${role}」。\n\n`;
+          prompt += `先描繪此刻環境（時辰、天氣、建築、人群與生活/學院氣息），再切入${userStr}正在做的具體事。\n`;
+
+          // 判定2：身分切入點
+          if (role === "新生") {
+            prompt += `從尋找座位、對陌生環境的好奇/不安、與周遭新生的短暫互動、或與高年級生或老師的互動切入。\n\n`;
+          } else if (role === "高年級生") {
+            prompt += `從觀察新生、與熟人交談、準備典禮事務，或對新學年開始的感想切入。\n\n`;
+          } else if (role === "教師") {
+            prompt += `從巡視會場、與其他教師或學生的互動，或處置突發的騷動（只能是小騷動，用來帶出${userStr}的行事風格，不留下後果）切入。\n\n`;
+          } else {
+            prompt += `\n`; // 其他無內容
+          }
+
+          // 判定3：契約夥伴登場
+          if (hasContract) {
+            if (isHuman) {
+              prompt += `因${userStr}已召喚使魔同行，使魔須以陪伴者身分自然登場（除非設定明確表示不會出場）或提及其在契約空間，透過對話、心靈感應或行為細節，表現出使魔與${userStr}的關係。\n\n`;
+            } else {
+              prompt += `因${userStr}已與召喚師結契，召喚師自然登場（除非設定明確表示不會出場），透過對話、心靈感應或行為細節，表現出召喚師與${userStr}的關係。\n\n`;
+            }
+          }
+          prompt += `場景角色和位置對照關係：
+        - 校長安德米恩：在台上。
+        - 伊茲娜：作為新生代表，在台上。
+        - 茉莉、梅鈴、東雲、歐露媞雅、朵萊特：在後台（他人不可見），稍後會接在校長後面上台致詞。
+        - 艾爾菈德主任：在後台頂住。
+        - 時雨、來流、蘭娜：跟著主任一起在後台頂住。
+        - 歐絲和奈音：兩個人黏在一起坐在台下。
+        - 懷絲、諾萊芙：位於台下。
+        - 其餘新生：台下。
+        - 其餘高年級生：禮堂二樓座位區，或未出席。
+        - 轉學生（如狄絲）：正在參加轉學考，在開學典禮結束前都不會登場。\n\n`;
+          // 判定3.5：結緣角色小互動
+          if (bondChar && String(bondChar).trim() !== "") {
+            const bondName = String(bondChar).trim();
+            prompt += `讓${userStr}跟${bondName}產生互動（若物理空間不允許碰面，可改成視線對上、聽到關於對方的話題）；須注意開場劇情的主軸始終是"開學典禮"和"帶出學院群像"，此互動只能佔一小段。\n\n`;
+          }
+
+          prompt += `收尾在"開學典禮開始前5~10分鐘"，給主角留出明顯的行動空間。\n\n`;
+
+          // 判定4：基調
+          if (tone === "搞笑") {
+            prompt += `整體筆調插科打諢、帶有荒誕諧趣，可適當加入反差與吐槽，但不可流於低俗。\n\n`;
+          } else {
+            prompt += `\n`; // 普通無內容
+          }
+
+          if (tone === "瑟瑟") {
+            prompt += `可融入曖昧香豔的情慾暗湧（點到為止，留餘韻），聚焦於學生的"年輕亮麗"和"青春躁動"，場景與互動多一層媚色渲染。\n\n`;
+          } else {
+            prompt += `\n`; // 普通無內容
+          }
+
+          prompt += `注意更新 時間、持有物品、所在位置、當前狀態、契約對象所在位置、契約對象當前狀態 變量。
+                </開學典禮>`;
+          return prompt;
+        },
+
+        // ======== 1. 靜默呼叫模型與內容生成 ========
+        async generateContent() {
+          const genBtn = document.getElementById("fa-generate-btn");
+          const injBtn = document.getElementById("fa-inject-btn");
+
+          genBtn.disabled = true;
+          genBtn.innerText = "生成中...";
+
+          try {
+            // 送出請求前，先將 0 樓變量覆蓋成空白初始值
+            if (typeof Mvu !== "undefined") {
+              const initContext = { type: "message", message_id: 0 };
+              const initData = Mvu.getMvuData(initContext) || {};
+              _.set(initData, "stat_data", this.createFullBaseData());
+              await Mvu.replaceMvuData(initData, initContext);
+            }
+            const hasContract = this.isHuman
+              ? document.getElementById("fa-h-contract").value === "有"
+              : document.getElementById("fa-f-contract").value === "有";
+            let scenario = 0;
+            let promptText = FA_PROMPT_BASE + "\n\n";
+
+            const hName =
+              document.getElementById("fa-h-name").value || "未填寫";
+            const hGender = this.getGenderStr(
+              "fa-h-gender",
+              "fa-h-gender-other",
+            );
+            const hRole = this.getRoleStr();
+            const hGrade = this.getGrade();
+            const hPersona =
+              document.getElementById("fa-h-persona").value || "未填寫";
+
+            const fTitle = document.getElementById("fa-f-title").value;
+            const fName = document.getElementById("fa-f-name").value;
+            const fFullName =
+              fTitle || fName
+                ? `${fTitle ? fTitle + "-" : ""}${fName}`
+                : "未填寫";
+            const fElement = document.getElementById("fa-f-element").value;
+            const fRace = document.getElementById("fa-f-race-type").value;
+            const fStar = document.getElementById("fa-f-star").value || "1星";
+            const fClass = `${fElement}-${fRace}-${fStar}`;
+            const fGender = this.getGenderStr(
+              "fa-f-gender",
+              "fa-f-gender-other",
+            );
+            const fPersona =
+              document.getElementById("fa-f-persona").value || "未填寫";
+
+            if (this.isHuman) {
+              if (!hasContract) {
+                scenario = 1;
+                promptText += `${FA_MAGIC_RULES}\n\n請為這名人類召喚者生成 2 到 4 招魔法；優先生成其已知資訊提及的魔法（若有，允許按照資訊生成超過4個）\n`;
+                promptText += `【召喚者資訊】\n名字：${hName}\n性別：${hGender}\n身分：${hRole}\n年級：${hGrade}\n人設與背景：${hPersona}\n`;
+                promptText += `【輸出要求】\n必須輸出包含 \`magics\` 的 JSON。\nJSON 格式範例：\n{\n${FA_MAGIC_JSON_EXAMPLE}\n}`;
+              } else {
+                const cName = document
+                  .getElementById("fa-ch-name")
+                  .value.trim();
+                const cTitle = document
+                  .getElementById("fa-ch-title")
+                  .value.trim();
+                const chElementRaw =
+                  document.getElementById("fa-ch-element").value;
+                const chRaceRaw =
+                  document.getElementById("fa-ch-race-type").value;
+                const chStar = document
+                  .getElementById("fa-ch-star")
+                  .value.trim();
+                const chGenderRaw = this.getGenderStr(
+                  "fa-ch-gender",
+                  "fa-ch-gender-other",
+                );
+                const chPersona = document
+                  .getElementById("fa-ch-persona")
+                  .value.trim();
+                const isFamiliarComplete = Boolean(
+                  cName &&
+                  cTitle &&
+                  chElementRaw !== "未定" &&
+                  chRaceRaw !== "未定" &&
+                  chStar &&
+                  chGenderRaw !== "未定" &&
+                  chGenderRaw !== "未填寫" &&
+                  chPersona,
+                );
+
+                if (isFamiliarComplete) {
+                  scenario = 2;
+                  const chFullName = `${cTitle}-${cName}`;
+                  const chClass = `${chElementRaw}-${chRaceRaw}-${chStar}`;
+
+                  promptText += `請為這名人類召喚者生成 2 到 4 招魔法，並優先生成其已知資訊提及的魔法（若有，允許按照資訊生成超過4個）；並為其契約使魔生成 3 到 5 招初始能力，優先生成其資訊中的提及的能力（若有，允許按照資訊生成超過5個）。\n\n${FA_MAGIC_RULES}\n\n`;
+                  promptText += `【召喚者資訊】\n名字：${hName}\n性別：${hGender}\n身分：${hRole}\n年級：${hGrade}\n人設與背景：${hPersona}\n`;
+                  promptText += `【使魔資訊】\n名字：${chFullName}\n分類：${chClass}\n性別：${chGenderRaw}\n人設與背景：${chPersona}\n備註：使魔的能力不受魔法規則限制，可以有傷害性、控制性、戰術性的能力，但也可能沒有。\n`;
+                  promptText += `【輸出要求】\n必須輸出包含 \`magics\` 與 \`abilities\` 的 JSON。\nJSON 格式範例：\n{\n${FA_MAGIC_JSON_EXAMPLE},\n${FA_ABILITY_JSON_EXAMPLE}\n}`;
+                } else {
+                  scenario = 3;
+                  const nameLimit =
+                    cTitle || cName
+                      ? `${cTitle ? "稱號:" + cTitle + " " : ""}${cName ? "名字:" + cName : ""}`.trim()
+                      : "無";
+                  const chElement =
+                    chElementRaw && chElementRaw !== "未定"
+                      ? chElementRaw
+                      : "無";
+                  const chRace =
+                    chRaceRaw && chRaceRaw !== "未定" ? chRaceRaw : "無";
+
+                  promptText += `以下人類召喚者擁有一隻使魔，但資料缺失，請根據召喚者的特質，為其生成一隻相匹配的使魔，並同時生成 3 到 5 招專屬能力，以及該召喚者掌握的 2 到 4 招魔法；優先生成已知資訊提及的技能魔法（若有，允許按照資訊生成超過上限）\n\n${FA_MAGIC_RULES}\n\n`;
+                  promptText += `【召喚者（主人）資訊】\n名字：${hName}\n性別：${hGender}\n身分：${hRole}\n人設與背景：${hPersona}\n`;
+                  promptText += `【已有使魔殘缺資訊】(若玩家有填寫部分欄位，請以玩家填寫的為準，無則由你發想)\n名字限制：${nameLimit}\n屬性限制：${chElement}\n種族限制：${chRace}\n備註：使魔的能力不受魔法規則限制，可以有傷害性、控制性、戰術性的能力，但也可能沒有。\n`;
+                  promptText += `【輸出要求】\n必須輸出包含 \`profile\`、\`abilities\` 與 \`magics\` 的 JSON。\nJSON 格式範例：\n{\n${FA_FAMILIAR_PROFILE_EXAMPLE},\n${FA_ABILITY_JSON_EXAMPLE},\n${FA_MAGIC_JSON_EXAMPLE}\n}`;
+                }
+              }
+            } else {
+              if (!hasContract) {
+                scenario = 4;
+                promptText += `請為這名使魔生成 3 到 5 招初始能力；優先生成已知資訊提及的能力（若有，允許按照資訊生成超過5個）\n\n【使魔資訊】\n名字：${fFullName}\n分類：${fClass}\n性別：${fGender}\n人設與背景：${fPersona}\n`;
+                promptText += `【輸出要求】\n必須輸出包含 \`abilities\` 的 JSON。\nJSON 格式範例：\n{\n${FA_ABILITY_JSON_EXAMPLE}\n}`;
+              } else {
+                const cfName = document
+                  .getElementById("fa-cf-name")
+                  .value.trim();
+                const cfGender = this.getGenderStr(
+                  "fa-cf-gender",
+                  "fa-cf-gender-other",
+                );
+                const cfRole = document
+                  .getElementById("fa-cf-role")
+                  .value.trim();
+                const cfPersona = document
+                  .getElementById("fa-cf-persona")
+                  .value.trim();
+                const isSummonerComplete = Boolean(
+                  cfName &&
+                  cfGender !== "未定" &&
+                  cfGender !== "未填寫" &&
+                  cfRole &&
+                  cfPersona,
+                );
+
+                if (isSummonerComplete) {
+                  scenario = 5;
+
+                  promptText += `請為這名使魔生成 3 到 5 招初始能力，並為其契約人類召喚者生成 2 到 4 招魔法；優先生成已知資訊提及的能力和魔法（若有，允許按照已知資訊生成超過上限）。\n\n${FA_MAGIC_RULES}\n\n`;
+                  promptText += `【使魔資訊】\n名字：${fFullName}\n分類：${fClass}\n性別：${fGender}\n人設與背景：${fPersona}\n備註：使魔的能力不受魔法規則限制，可以有傷害性、控制性、戰術性的能力，但也可能沒有。\n`;
+                  promptText += `【召喚者資訊】\n名字：${cfName}\n性別：${cfGender}\n身分：${cfRole}\n年級：無\n人設與背景：${cfPersona}\n`;
+                  promptText += `【輸出要求】\n必須輸出包含 \`abilities\` 與 \`magics\` 的 JSON。\nJSON 格式範例：\n{\n${FA_ABILITY_JSON_EXAMPLE},\n${FA_MAGIC_JSON_EXAMPLE}\n}`;
+                } else {
+                  scenario = 6;
+                  promptText += `該使魔擁有一名人類契約召喚者，但資料缺失，請生成一名與之簽訂契約的人類召喚者，並同時生成 3 到 5 招這名召喚者掌握的魔法，以及該使魔的 3 到 5 招初始能力；優先生成已知資訊提及的能力和魔法（若有，允許按照已知資訊生成超過上限）。\n\n${FA_MAGIC_RULES}\n\n`;
+                  promptText += `【使魔（主角）資訊】\n名字：${fFullName}\n分類：${fClass}\n性別：${fGender}\n人設與背景：${fPersona}\n備註：使魔的能力不受魔法規則限制，可以有傷害性、控制性、戰術性的能力，但也可能沒有。\n`;
+                  promptText += `【已有召喚者殘缺資訊】(若玩家有填寫部分欄位，請以玩家填寫的為準，無則由你發想)\n名字限制：${cfName || "無"}\n身分限制：${cfRole || "無"}\n`;
+                  promptText += `【輸出要求】\n必須輸出包含 \`profile\`、\`magics\` 與 \`abilities\` 的 JSON。\nJSON 格式範例：\n{\n${FA_SUMMONER_PROFILE_EXAMPLE},\n${FA_MAGIC_JSON_EXAMPLE},\n${FA_ABILITY_JSON_EXAMPLE}\n}`;
+                }
+              }
+            }
+            const toneStr = document.getElementById("fa-story-tone").value;
+            if (toneStr === "搞笑") {
+              promptText += `部分的設計(以不超過一半為原則)可帶有荒誕諧趣，但不可流於低俗。\n`;
+            } else {
+              if (toneStr === "瑟瑟") {
+                promptText += `部分的設計(以不超過一半為原則)可融入曖昧香豔的元素，彰顯使用者的私密習慣。\n`;
+              }
+            }
+
+            let resultText = "";
+            if (typeof generateRaw !== "undefined") {
+              resultText = await generateRaw({
+                should_silence: true,
+                ordered_prompts: [{ role: "system", content: promptText }],
+              });
+            } else {
+              console.warn("未檢測到 SillyTavern generateRaw，使用本機模擬...");
+              await new Promise((r) => setTimeout(r, 1000));
+              if (scenario === 3) {
+                resultText = JSON.stringify({
+                  profile: {
+                    稱號: "赤焰",
+                    名字: "火蜥",
+                    屬性: "炎",
+                    種族: "爬蟲族",
+                    星級: "3星",
+                    性別: "無",
+                    設定: "性情溫和的火蜥蜴，喜歡貼在主人身邊取暖。",
+                  },
+                  abilities: {
+                    火花: {
+                      類型: "主動",
+                      效果: "噴出微小火花攻擊敵人",
+                      描述: "火蜥蜴的基礎天賦能力",
+                    },
+                  },
+                  magics: {
+                    望遠術: {
+                      屬性: "風",
+                      效果: "清楚看見百米視線內的東西",
+                      描述: "空氣折射的簡單運用",
+                    },
+                  },
+                });
+              } else if (scenario === 6) {
+                resultText = JSON.stringify({
+                  profile: {
+                    名字: "艾莉雅",
+                    性別: "女",
+                    身分: "新生",
+                    年級: "一",
+                    設定: "來自邊境小鎮的少女，在入學儀式上意外召喚出強大的使魔。",
+                  },
+                  magics: {
+                    微光術: {
+                      屬性: "光",
+                      效果: "在指尖產生燭火般的光源",
+                      描述: "夜間照明的基礎魔法",
+                    },
+                  },
+                  abilities: {
+                    暗影步: {
+                      類型: "主動",
+                      效果: "短距離融入陰影移動",
+                      描述: "天生的潛行技巧",
+                    },
+                  },
+                });
+              } else {
+                resultText =
+                  '{"magics":{"望遠術":{"屬性":"風","效果":"清楚看見百米視線內的東西","描述":"簡單的風屬性魔法"}},"abilities":{"硬化":{"類型":"被動","效果":"提升表皮防禦力","描述":"基礎防禦能力"}}}';
+              }
+            }
+
+            let parsed = null;
+            try {
+              const match = resultText.match(/\{[\s\S]*\}/);
+              parsed = JSON.parse(match ? match[0] : resultText);
+            } catch (e) {
+              throw new Error("JSON 解析失敗");
+            }
+
+            const extractedMagics =
+              parsed.magics ||
+              (scenario === 1 && !parsed.abilities && !parsed.profile
+                ? parsed
+                : null);
+            const extractedAbilities =
+              parsed.abilities ||
+              (scenario === 4 && !parsed.magics && !parsed.profile
+                ? parsed
+                : null);
+
+            // 4. 更新能力、魔法與契約狀態至 MVU 變量
+            if (typeof Mvu !== "undefined") {
+              const mvuContext = { type: "message", message_id: 0 };
+              const currentData = Mvu.getMvuData(mvuContext);
+              let statData = _.get(currentData, "stat_data");
+
+              if (!statData || !statData["主角"] || !statData["主角欄"]) {
+                statData = this.createFullBaseData();
+              }
+
+              if (this.isHuman) {
+                if (extractedMagics) {
+                  statData["主角"]["魔法"] =
+                    this.normalizeMagics(extractedMagics);
+                }
+                if (hasContract) {
+                  statData["主角"]["是否有契約使魔"] = true;
+                  if (
+                    !statData["主角"]["契約使魔"] ||
+                    typeof statData["主角"]["契約使魔"] === "string"
+                  ) {
+                    statData["主角"]["契約使魔"] = this.getEmptyFamiliarBase();
+                  }
+                  if (extractedAbilities) {
+                    statData["主角"]["契約使魔"]["能力"] =
+                      this.normalizeAbilities(extractedAbilities);
+                  }
+                }
+              } else {
+                if (extractedAbilities) {
+                  statData["主角欄"]["能力"] =
+                    this.normalizeAbilities(extractedAbilities);
+                }
+                if (hasContract) {
+                  statData["主角欄"]["是否有契約召喚者"] = true;
+                  if (
+                    !statData["主角欄"]["契約召喚者"] ||
+                    typeof statData["主角欄"]["契約召喚者"] === "string"
+                  ) {
+                    statData["主角欄"]["契約召喚者"] =
+                      this.getEmptySummonerBase();
+                  }
+                  if (extractedMagics) {
+                    statData["主角欄"]["契約召喚者"]["魔法"] =
+                      this.normalizeMagics(extractedMagics);
+                  }
+                }
+              }
+              _.set(currentData, "stat_data", statData);
+              await Mvu.replaceMvuData(currentData, mvuContext);
+            }
+
+            // 5. 將生成的使魔或召喚師設定填入"介面中的對應欄位"
+            let generatedProfileDisplayName = "";
+            if (parsed.profile) {
+              const p = parsed.profile;
+              if (scenario === 3) {
+                let titleVal = p.稱號 ? String(p.稱號).trim() : "";
+                let nameVal = p.名字 ? String(p.名字).trim() : "";
+                if (!titleVal && nameVal.includes("-")) {
+                  const parts = nameVal.split("-");
+                  titleVal = parts[0].trim();
+                  nameVal = parts.slice(1).join("-").trim();
+                }
+                if (titleVal)
+                  document.getElementById("fa-ch-title").value = titleVal;
+                if (nameVal)
+                  document.getElementById("fa-ch-name").value = nameVal;
+                generatedProfileDisplayName =
+                  titleVal || nameVal
+                    ? `${titleVal || "無稱號"}-${nameVal || "未命名"}`
+                    : "";
+
+                if (p.屬性) {
+                  document.getElementById("fa-ch-element").value =
+                    this.normalizeElement(p.屬性);
+                }
+                if (p.種族) {
+                  document.getElementById("fa-ch-race-type").value =
+                    this.normalizeRace(p.種族);
+                }
+                if (p.星級) {
+                  document.getElementById("fa-ch-star").value = String(
+                    p.星級,
+                  ).trim();
+                }
+                // 相容舊式分類欄位防呆
+                if (!p.屬性 && !p.種族 && p.分類) {
+                  const parts = String(p.分類).split("-");
+                  if (parts.length >= 3) {
+                    document.getElementById("fa-ch-element").value =
+                      this.normalizeElement(parts[0]);
+                    document.getElementById("fa-ch-race-type").value =
+                      this.normalizeRace(parts[1]);
+                    document.getElementById("fa-ch-star").value =
+                      parts[2].trim();
+                  }
+                }
+                if (p.性別) {
+                  const sel = document.getElementById("fa-ch-gender");
+                  const opts = Array.from(sel.options).map((o) => o.value);
+                  if (opts.includes(p.性別)) {
+                    sel.value = p.性別;
+                    this.checkGenderOther(sel, "fa-ch-gender-other");
+                  } else {
+                    sel.value = "其他";
+                    this.checkGenderOther(sel, "fa-ch-gender-other");
+                    document.getElementById("fa-ch-gender-other").value =
+                      p.性別;
+                  }
+                }
+                if (p.設定)
+                  document.getElementById("fa-ch-persona").value = p.設定;
+              } else if (scenario === 6) {
+                if (p.名字) {
+                  document.getElementById("fa-cf-name").value = p.名字;
+                  generatedProfileDisplayName = p.名字;
+                }
+                if (p.身分)
+                  document.getElementById("fa-cf-role").value = p.身分;
+                if (p.年級) this.cachedGeneratedSummonerGrade = p.年級;
+                if (p.設定)
+                  document.getElementById("fa-cf-persona").value = p.設定;
+                if (p.性別) {
+                  const sel = document.getElementById("fa-cf-gender");
+                  const opts = Array.from(sel.options).map((o) => o.value);
+                  if (opts.includes(p.性別)) {
+                    sel.value = p.性別;
+                    this.checkGenderOther(sel, "fa-cf-gender-other");
+                  } else {
+                    sel.value = "其他";
+                    this.checkGenderOther(sel, "fa-cf-gender-other");
+                    document.getElementById("fa-cf-gender-other").value =
+                      p.性別;
+                  }
+                }
+              }
+              this.renderSummary();
+            }
+
+            if (typeof toastr !== "undefined") {
+              let msgParts = [];
+              if (generatedProfileDisplayName)
+                msgParts.push("生成角色：" + generatedProfileDisplayName);
+              if (extractedMagics && Object.keys(extractedMagics).length > 0)
+                msgParts.push(
+                  "新增魔法：" + Object.keys(extractedMagics).join("、"),
+                );
+              if (
+                extractedAbilities &&
+                Object.keys(extractedAbilities).length > 0
+              )
+                msgParts.push(
+                  "新增能力：" + Object.keys(extractedAbilities).join("、"),
+                );
+
+              let msg = "內容生成完畢，已更新至變量！";
+              if (msgParts.length > 0) {
+                msg += "\n" + msgParts.join(" | ");
+              }
+              toastr.success(msg);
+            }
+
+            injBtn.disabled = false;
+            injBtn.classList.remove("fa-btn-disabled");
+            injBtn.classList.add("fa-btn-primary");
+          } catch (err) {
+            console.error(err);
+            if (typeof toastr !== "undefined")
+              toastr.error("生成失敗：" + err.message);
+          } finally {
+            genBtn.disabled = false;
+            genBtn.innerText = "生成內容";
+          }
+        },
+
+        // ======== 變量注入邏輯 ========
+        async injectVariables() {
+          if (typeof Mvu === "undefined") {
+            console.error(
+              "MVU API 不存在，請確認這是在 SillyTavern 且已安裝 MVU 擴展。",
+            );
+            return;
+          }
+
+          const mvuContext = { type: "message", message_id: 0 };
+          const currentData = Mvu.getMvuData(mvuContext);
+          let statData = _.get(currentData, "stat_data");
+
+          if (!statData || !statData["主角"] || !statData["主角欄"]) {
+            statData = this.createFullBaseData();
+          }
+          if (!statData["世界資訊"]) {
+            statData["世界資訊"] = { 日期: "2026/08/29", 時間: "08:40" };
+          }
+
+          const roleStr = this.getRoleStr();
+          const gradeStr = this.getGrade();
+          const toneStr = document.getElementById("fa-story-tone").value;
+          statData["基調"] = toneStr;
+
+          if (this.isHuman) {
+            statData["$主角是否是使魔"] = false;
+            statData["主角"]["名字"] =
+              document.getElementById("fa-h-name").value || "尚未初始化";
+            statData["主角"]["性別"] = this.getGenderStr(
+              "fa-h-gender",
+              "fa-h-gender-other",
+            );
+            statData["主角"]["身分"] = roleStr;
+            statData["主角"]["年級"] = gradeStr;
+            statData["主角"]["設定"] =
+              document.getElementById("fa-h-persona").value || "尚未初始化";
+
+            statData["主角"]["當前狀態"] = statData["主角"]["當前狀態"] || {
+              所在位置: "尚未初始化",
+              特殊狀態: {},
+            };
+            statData["主角"]["當前狀態"]["所在位置"] =
+              document.getElementById("fa-h-status").value || "尚未初始化";
+            statData["主角"]["持有藝齒"] =
+              parseInt(document.getElementById("fa-h-money").value) || 0;
+            if (
+              typeof statData["主角"]["持有物品"] !== "object" ||
+              statData["主角"]["持有物品"] === null
+            ) {
+              statData["主角"]["持有物品"] = {};
+            }
+
+            const hasContract =
+              document.getElementById("fa-h-contract").value === "有";
+            statData["主角"]["是否有契約使魔"] = hasContract;
+
+            if (hasContract) {
+              const cTitle = document
+                .getElementById("fa-ch-title")
+                .value.trim();
+              const cName = document.getElementById("fa-ch-name").value.trim();
+              const cFullName =
+                cTitle || cName
+                  ? `${cTitle || "無稱號"}-${cName || "未命名"}`
+                  : "尚未初始化";
+              const cElement = this.normalizeElement(
+                document.getElementById("fa-ch-element").value,
+              );
+              const cRace = this.normalizeRace(
+                document.getElementById("fa-ch-race-type").value,
+              );
+              const cStar =
+                document.getElementById("fa-ch-star").value.trim() || "1星";
+              const cClass = `${cElement}-${cRace}-${cStar}`;
+
+              if (
+                !statData["主角"]["契約使魔"] ||
+                typeof statData["主角"]["契約使魔"] === "string"
+              ) {
+                statData["主角"]["契約使魔"] = this.getEmptyFamiliarBase();
+              }
+
+              statData["主角"]["契約使魔"]["名字"] = cFullName;
+              statData["主角"]["契約使魔"]["分類"] = cClass;
+              statData["主角"]["契約使魔"]["性別"] = this.getGenderStr(
+                "fa-ch-gender",
+                "fa-ch-gender-other",
+              );
+              statData["主角"]["契約使魔"]["設定"] =
+                document.getElementById("fa-ch-persona").value || "尚未初始化";
+              statData["主角"]["契約使魔"]["當前狀態"] = statData["主角"][
+                "契約使魔"
+              ]["當前狀態"] || { 所在位置: "尚未初始化", 特殊狀態: {} };
+              statData["主角"]["契約使魔"]["持有物品"] =
+                statData["主角"]["契約使魔"]["持有物品"] || {};
+            } else {
+              statData["主角"]["契約使魔"] = null;
+            }
+          } else {
+            statData["$主角是否是使魔"] = true;
+            const fTitle = document.getElementById("fa-f-title").value.trim();
+            const fName = document.getElementById("fa-f-name").value.trim();
+            const fFullName =
+              fTitle || fName
+                ? `${fTitle || "無稱號"}-${fName || "未命名"}`
+                : "尚未初始化";
+            const fElement = this.normalizeElement(
+              document.getElementById("fa-f-element").value,
+            );
+            const fRace = this.normalizeRace(
+              document.getElementById("fa-f-race-type").value,
+            );
+            const fStar =
+              document.getElementById("fa-f-star").value.trim() || "1星";
+            const fClass = `${fElement}-${fRace}-${fStar}`;
+
+            statData["主角欄"]["名字"] = fFullName;
+            statData["主角欄"]["分類"] = fClass;
+            statData["主角欄"]["性別"] = this.getGenderStr(
+              "fa-f-gender",
+              "fa-f-gender-other",
+            );
+            statData["主角欄"]["身分"] = roleStr;
+            statData["主角欄"]["年級"] = gradeStr;
+            statData["主角欄"]["設定"] =
+              document.getElementById("fa-f-persona").value || "尚未初始化";
+
+            statData["主角欄"]["當前狀態"] = statData["主角欄"]["當前狀態"] || {
+              所在位置: "尚未初始化",
+              特殊狀態: {},
+            };
+            statData["主角欄"]["當前狀態"]["所在位置"] =
+              document.getElementById("fa-f-status").value || "尚未初始化";
+            statData["主角欄"]["持有藝齒"] =
+              parseInt(document.getElementById("fa-f-money").value) || 0;
+            if (
+              typeof statData["主角欄"]["持有物品"] !== "object" ||
+              statData["主角欄"]["持有物品"] === null
+            ) {
+              statData["主角欄"]["持有物品"] = {};
+            }
+
+            const hasContract =
+              document.getElementById("fa-f-contract").value === "有";
+            statData["主角欄"]["是否有契約召喚者"] = hasContract;
+
+            if (hasContract) {
+              const cName =
+                document.getElementById("fa-cf-name").value.trim() ||
+                "尚未初始化";
+              const cRole =
+                document.getElementById("fa-cf-role").value.trim() ||
+                "尚未初始化";
+              const cPersona =
+                document.getElementById("fa-cf-persona").value.trim() ||
+                "尚未初始化";
+
+              if (
+                !statData["主角欄"]["契約召喚者"] ||
+                typeof statData["主角欄"]["契約召喚者"] === "string"
+              ) {
+                statData["主角欄"]["契約召喚者"] = this.getEmptySummonerBase();
+              }
+
+              let cGrade = this.cachedGeneratedSummonerGrade || "無";
+              if (cRole === "新生") cGrade = "一";
+              else if (
+                !["一", "二", "三", "四", "五", "六", "無"].includes(cGrade)
+              )
+                cGrade = "無";
+
+              statData["主角欄"]["契約召喚者"]["名字"] = cName;
+              statData["主角欄"]["契約召喚者"]["性別"] = this.getGenderStr(
+                "fa-cf-gender",
+                "fa-cf-gender-other",
+              );
+              statData["主角欄"]["契約召喚者"]["身分"] = cRole;
+              statData["主角欄"]["契約召喚者"]["年級"] = cGrade;
+              statData["主角欄"]["契約召喚者"]["設定"] = cPersona;
+              statData["主角欄"]["契約召喚者"]["當前狀態"] = statData["主角欄"][
+                "契約召喚者"
+              ]["當前狀態"] || { 所在位置: "尚未初始化", 特殊狀態: {} };
+              statData["主角欄"]["契約召喚者"]["持有物品"] =
+                statData["主角欄"]["契約召喚者"]["持有物品"] || {};
+            } else {
+              statData["主角欄"]["契約召喚者"] = null;
+            }
+          }
+
+          _.set(currentData, "stat_data", statData);
+
+          const injBtn = document.getElementById("fa-inject-btn");
+          if (injBtn) {
+            injBtn.disabled = true;
+            injBtn.innerText = "入學中...";
+          }
+
+          try {
+            await Mvu.replaceMvuData(currentData, mvuContext);
+            if (typeof toastr !== "undefined")
+              toastr.success("變量已注入！正在生成開局劇情（5秒後觸發）...");
+
+            const hasContractFinal = this.isHuman
+              ? document.getElementById("fa-h-contract").value === "有"
+              : document.getElementById("fa-f-contract").value === "有";
+            const bondChar = document.getElementById("fa-bond-character").value;
+
+            const fa_starting_floor_message = this.generateIntroPrompt(
+              this.isHuman,
+              roleStr,
+              hasContractFinal,
+              toneStr,
+              bondChar,
+            );
+
+            await createChatMessages([
+              { role: "user", message: fa_starting_floor_message },
+            ]);
+            // 使用 STscript 的 /delay 將 5 秒等待與 /trigger 交給 SillyTavern 主執行緒處理，
+            // 避免 0 樓介面重繪導致 iframe 內的 setTimeout 被中斷
+            if (typeof triggerSlash === "function") {
+              await triggerSlash("/delay 5000 | /trigger");
+            } else if (
+              window.parent &&
+              typeof window.parent.triggerSlash === "function"
+            ) {
+              await window.parent.triggerSlash("/delay 5000 | /trigger");
+            }
+          } catch (error) {
+            console.error("變量注入或觸發開局失敗:", error);
+            if (typeof toastr !== "undefined")
+              toastr.error("執行失敗，請查看控制台。");
+            if (injBtn) {
+              injBtn.disabled = false;
+              injBtn.innerText = "注入變量並入學";
+            }
+          }
+        },
+      });
+
+      // 初始化 (延遲 50ms 確保 DOM 已渲染完畢)
+      setTimeout(() => {
+        if (window.faApp && typeof window.faApp.init === "function") {
+          window.faApp.init();
+        }
+      }, 50);
+    </script>
+  </body>
+</html>
